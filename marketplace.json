@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "kunal-singh-plugins",
+  "description": "Personal Claude Code plugin collection by Kunal Singh",
+  "owner": {
+    "name": "Kunal Singh",
+    "email": "hi@thekunalsingh.com"
+  },
+  "plugins": [
+    {
+      "name": "pluginify",
+      "description": "AI-powered Claude Code plugin generator. Converts natural language descriptions into production-ready, validated plugin structures.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kunal Singh",
+        "email": "hi@thekunalsingh.com"
+      },
+      "source": "./pluginify",
+      "category": "development",
+      "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/pluginify"
+    }
+  ]
+}
