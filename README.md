@@ -4,8 +4,10 @@ Personal Claude Code plugin collection by Kunal Singh.
 
 ## Add as a marketplace
 
+Run inside a Claude Code session:
+
 ```
-claude marketplace add github:kunal-singh/claude-code-plugins
+/plugin marketplace add kunal-singh/claude-code-plugins
 ```
 
 ## Available plugins
