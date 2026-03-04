@@ -2,7 +2,10 @@
   "name": "pluginify",
   "version": "1.0.0",
   "description": "AI-powered Claude Code plugin generator. Converts natural language descriptions into production-ready, validated plugin structures.",
-  "author": "Kunal Singh",
+  "author": {
+    "name": "Kunal Singh",
+    "email": "hi@thekunalsingh.com"
+  },
   "homepage": "https://github.com/kunalsingh/claude-code-plugins/tree/main/pluginify",
   "repository": "https://github.com/kunalsingh/claude-code-plugins",
   "skills": [
