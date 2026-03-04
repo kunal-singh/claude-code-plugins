@@ -1,6 +1,7 @@
 ---
 description: Teaches Claude how to generate production-ready Claude Code plugins from natural language descriptions, with full knowledge of all validator gotchas and constraints.
 disable-model-invocation: false
+user-invocable: false
 ---
 
 # Claude Code Plugin Generator
