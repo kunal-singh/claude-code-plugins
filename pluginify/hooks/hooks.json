@@ -1,0 +1,12 @@
+{
+  "hooks": [
+    {
+      "event": "PostToolUse",
+      "matcher": {
+        "tool": "Write",
+        "pattern": "plugin\\.json"
+      },
+      "prompt": "A plugin.json file was just written. Check it against the Pluginify validation checklist: (1) has 'version' field, (2) skills/commands/agents are arrays, (3) no 'hooks' field, (4) agent paths end in /agent.md, (5) mcpServers is object not array. If any issue is found, report it immediately."
+    }
+  ]
+}
