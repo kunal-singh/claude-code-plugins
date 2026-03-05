@@ -11,7 +11,7 @@ Capture the output of any tmux pane and write it to `~/tmux-logs/` so that a Cla
 
 ## Core Concepts
 
-**Pane numbering**: tmux panes are 1-indexed in this plugin. Pane 1 is the first pane in the current window, pane 2 is the second, etc. Internally, `tmux capture-pane` uses 0-indexed `-t` targets, so subtract 1 when building the command (user says "pane 2" → use `-t 1`).
+**Pane numbering**: Use tmux pane indices directly as the `-t` target. When the user says "pane 2", use `tmux capture-pane -t 2`. Do not subtract 1 — tmux pane indices match the numbers shown in `tmux list-panes` output and what users see with `Ctrl+b q` (pane numbers overlay).
 
 **Log location**: All captures are written to `~/tmux-logs/`. Create this directory if it does not exist.
 
@@ -27,13 +27,13 @@ Example filename: `20240315_143022_pane2_server.txt`
 
 ## Capture Workflow
 
-### Step 1: Resolve the target pane
+### Step 1: Parse and validate the pane number
 
-Convert the user-provided 1-indexed pane number to a 0-indexed tmux target:
+The user provides a pane number that matches tmux's pane index. Use it directly:
 
 ```bash
-PANE_NUM=2          # user-provided, 1-indexed
-TARGET=$((PANE_NUM - 1))   # 0-indexed for tmux
+PANE_NUM=2          # user-provided (matches tmux pane index)
+TARGET=$PANE_NUM    # use directly, no conversion needed
 ```
 
 ### Step 2: Get the window name
@@ -78,12 +78,11 @@ Full one-liner for default full-scrollback capture:
 
 ```bash
 PANE_NUM=2
-TARGET=$((PANE_NUM - 1))
 WINDOW_NAME=$(tmux display-message -p '#W' | tr ' ' '_')
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p ~/tmux-logs
 OUTFILE=~/tmux-logs/${TIMESTAMP}_pane${PANE_NUM}_${WINDOW_NAME}.txt
-tmux capture-pane -t $TARGET -p -S - > "$OUTFILE"
+tmux capture-pane -t $PANE_NUM -p -S - > "$OUTFILE"
 echo "Captured to: $OUTFILE ($(wc -l < "$OUTFILE") lines)"
 ```
 

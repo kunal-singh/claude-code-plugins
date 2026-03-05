@@ -23,7 +23,6 @@ Run the following bash, substituting parsed values:
 
 ```bash
 PANE_NUM=<pane-number>
-TARGET=$((PANE_NUM - 1))
 WINDOW_NAME=$(tmux display-message -p '#W' | tr ' ' '_')
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p ~/tmux-logs
@@ -31,9 +30,9 @@ OUTFILE=~/tmux-logs/${TIMESTAMP}_pane${PANE_NUM}_${WINDOW_NAME}.txt
 
 # Full scrollback (default) or limited if line count provided
 if [ -n "<lines>" ]; then
-  tmux capture-pane -t $TARGET -p -S -<lines> > "$OUTFILE"
+  tmux capture-pane -t $PANE_NUM -p -S -<lines> > "$OUTFILE"
 else
-  tmux capture-pane -t $TARGET -p -S - > "$OUTFILE"
+  tmux capture-pane -t $PANE_NUM -p -S - > "$OUTFILE"
 fi
 
 LINE_COUNT=$(wc -l < "$OUTFILE")
