@@ -1,6 +1,6 @@
 # Pluginify
 
-> **Note**: This plugin was built as a learning exercise to understand Claude Code plugin architecture. For practical use, the official [plugin-dev](https://github.com/anthropics/claude-code-plugins) plugin from Anthropic provides a more complete and maintained plugin generation experience — use that instead.
+> **Note**: This plugin was built as a learning exercise to understand Claude Code plugin architecture. For practical use, the official [plugin-dev](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/plugin-dev) plugin from Anthropic provides a more complete and maintained plugin generation experience — use that instead.
 
 AI-powered Claude Code plugin generator. Describe what you want in plain English — Pluginify generates a complete, validated plugin structure with all required files.
 
