@@ -1,7 +1,7 @@
 ---
 name: tmux-capture
 description: This skill should be used when the user asks to "capture pane", "capture tmux pane", "read pane output", "check pane 2", "get output from pane", "read the server pane", "capture terminal output", "look at what's in pane", or wants to inspect output from another tmux pane. Provides complete workflow for capturing tmux pane content and writing it to ~/tmux-logs/ for cross-pane access.
-version: 1.0.0
+version: 1.0.1
 user-invocable: false
 ---
 
