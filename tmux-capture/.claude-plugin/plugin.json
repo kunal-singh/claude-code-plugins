@@ -4,7 +4,7 @@
   "description": "Capture tmux pane output to ~/tmux-logs/ so a Claude Code session can read output from another pane (e.g. a dedicated app/server pane).",
   "author": {
     "name": "Kunal Singh",
-    "email": ""
+    "email": "hi@thekunalsingh.com"
   },
   "keywords": ["tmux", "debugging", "pane", "terminal", "logs"],
   "skills": ["./skills/tmux-capture"],
