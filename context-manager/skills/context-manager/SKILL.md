@@ -61,20 +61,31 @@ Every MCP server is toggleable. Determine ON/OFF state from
 
 Label as `[MCP] server-name`.
 
-### Plugins (globally-OFF only)
-Only plugins where global value is `false` appear here. They are off globally but can be
-enabled locally for this project session. Determine ON/OFF from
-`$PROJECT_ROOT/.claude/settings.local.json` → `enabledPlugins`:
-- ON if `enabledPlugins[key]` is `true`
-- OFF otherwise
+### Plugins — two separate questions
 
-Label as `[PLUGIN] plugin-name@marketplace`.
+From global `enabledPlugins` and local `settings.local.json` `enabledPlugins`, derive:
 
-### Presenting
-Use AskUserQuestion with `multiSelect: true`. Present all MCPs and globally-OFF plugins.
-Pre-select currently-ON items. Selection = ENABLED. Unselected = DISABLED.
+**Locally-ON plugins**: globally-OFF plugins with `enabledPlugins[key]: true` in
+`settings.local.json`. Currently active for this project.
 
-If there are no toggleable items, print:
+**Locally-OFF plugins**: globally-OFF plugins without `enabledPlugins[key]: true` in
+`settings.local.json`. Currently inactive for this project.
+
+Ask two separate AskUserQuestion calls with `multiSelect: true`:
+
+**Question 1** — only if locally-ON plugins exist:
+"Which of these locally-enabled plugins do you want to disable for this project?"
+Options: one per locally-ON plugin, labeled `[PLUGIN] plugin-name@marketplace`.
+Always include "None — keep all enabled" as the last option.
+
+**Question 2** — only if locally-OFF plugins exist:
+"Which of these globally-disabled plugins do you want to enable for this project?"
+Options: one per locally-OFF plugin, labeled `[PLUGIN] plugin-name@marketplace`.
+Always include "None — keep all disabled" as the last option.
+
+Skip a question if its list is empty. If both lists are empty, skip plugin questions entirely.
+
+If there are no toggleable items at all (no MCPs either), print:
 ```
 No toggleable items for this project.
 ```
@@ -95,8 +106,11 @@ Write the full merged file back to `~/.claude.json`.
 
 Read existing file (parse JSON). If missing, start with `{}`.
 Modify only `enabledPlugins`:
-- Globally-OFF plugins the user selected → set `true`
-- Globally-OFF plugins the user did NOT select → remove the key (lets global `false` take effect)
+- Plugins selected in Question 1 (to disable): remove their key from `enabledPlugins`
+- Plugins selected in Question 2 (to enable): set their key to `true` in `enabledPlugins`
+- If user selected "None" in either question, make no changes for that group
+
+Write the merged result back only if changes were made.
 
 All other keys must remain untouched. Write the merged result back.
 Create `$PROJECT_ROOT/.claude/` directory if it does not exist.

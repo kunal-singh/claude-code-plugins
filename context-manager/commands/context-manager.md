@@ -60,22 +60,34 @@ Determine current ON/OFF state from `~/.claude.json` → `projects["$PROJECT_ROO
 
 Label as `[MCP] server-name`.
 
-### Plugins (globally-OFF only)
-Only show plugins where the global value is `false` in `~/.claude/settings.json`. These are
-off globally but can be enabled locally for this project.
+### Plugins — two separate questions
 
-Determine current ON/OFF state from `$PROJECT_ROOT/.claude/settings.local.json` →
-`enabledPlugins`:
-- If `enabledPlugins[key]` is `true` → currently ON locally
-- Otherwise → currently OFF
+From `~/.claude/settings.json` `enabledPlugins` and `$PROJECT_ROOT/.claude/settings.local.json`
+`enabledPlugins`, derive two lists:
 
-Label as `[PLUGIN] plugin-name@marketplace`.
+**Locally-ON plugins**: globally-OFF plugins that have `enabledPlugins[key]: true` in
+`settings.local.json`. These are currently active for this project.
 
-### Presenting the checklist
-Use **AskUserQuestion with multiSelect: true**. Present all MCPs and globally-OFF plugins.
-Pre-select currently-ON items. User's selection = ENABLED. Unselected = DISABLED.
+**Locally-OFF plugins**: globally-OFF plugins that do NOT have `enabledPlugins[key]: true`
+in `settings.local.json`. These are inactive for this project.
 
-If there are no toggleable items at all, print:
+Ask two separate AskUserQuestion calls with `multiSelect: true`:
+
+**Question 1** — only if there are locally-ON plugins:
+"Which of these locally-enabled plugins do you want to disable for this project?"
+Options: one per locally-ON plugin, labeled as `[PLUGIN] plugin-name@marketplace`.
+Always include "None — keep all enabled" as the last option.
+
+**Question 2** — only if there are locally-OFF plugins:
+"Which of these globally-disabled plugins do you want to enable for this project?"
+Options: one per locally-OFF plugin, labeled as `[PLUGIN] plugin-name@marketplace`.
+Always include "None — keep all disabled" as the last option.
+
+Skip a question entirely if its list is empty.
+
+If there are no toggleable plugin items at all, skip both questions.
+
+If there are no toggleable items at all (no MCPs either), print:
 ```
 No toggleable items for this project.
 ```
@@ -95,10 +107,11 @@ Write the merged result back to `~/.claude.json`.
 ### 5b: Write plugin state → `$PROJECT_ROOT/.claude/settings.local.json`
 
 Read existing file (or start with `{}`). Only modify `enabledPlugins`:
-- For globally-OFF plugins the user selected: set `true`
-- For globally-OFF plugins the user did NOT select: remove the key (lets global `false` take effect)
+- Plugins selected in Question 1 (to disable): remove their key from `enabledPlugins`
+- Plugins selected in Question 2 (to enable): set their key to `true` in `enabledPlugins`
+- If the user selected "None" in either question, make no changes for that group
 
-All other keys must remain untouched. Write the merged result back.
+All other keys must remain untouched. Write the merged result back only if changes were made.
 Create `$PROJECT_ROOT/.claude/` if it does not exist.
 
 ## Step 6: Confirm
