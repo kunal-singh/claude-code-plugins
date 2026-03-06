@@ -1,0 +1,14 @@
+{
+  "name": "context-manager",
+  "version": "0.1.0",
+  "description": "Interactively toggle MCP servers and plugins per project session to manage context window usage",
+  "author": {
+    "name": "Kunal Singh",
+    "email": "hi@thekunalsingh.com"
+  },
+  "repository": "https://github.com/kunal-singh/claude-code-plugins",
+  "license": "MIT",
+  "keywords": ["context", "mcp", "plugins", "toggle", "session"],
+  "skills": ["./skills/context-manager"],
+  "commands": ["./commands/context-manager.md"]
+}
