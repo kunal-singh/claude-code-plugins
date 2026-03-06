@@ -1,6 +1,6 @@
 ---
 name: context-manager
-description: Interactively toggle plugins for the current project session to manage context window usage
+description: Interactively toggle plugins and MCP servers for the current project session to manage context window usage
 allowed-tools:
   - Bash
   - Read
@@ -8,12 +8,8 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-Help the user manage their active plugins for the current project session.
+Help the user manage their active plugins and MCP servers for the current project session.
 Follow the steps below exactly.
-
-Note: MCP toggling is not supported. Disabled MCPs still inject tool definitions into the
-context window (Claude Code bug #11370), so toggling them does not save context tokens.
-Use Claude Code's built-in MCP Tool Search (lazy loading) instead.
 
 ## Step 1: Detect project root
 
@@ -33,6 +29,11 @@ Read the following. Treat missing files as empty.
 
 - **Global plugins**: `~/.claude/settings.json` → `enabledPlugins` object. Keys are `plugin@marketplace`, values `true`/`false`.
 - **Current plugin state**: `$PROJECT_ROOT/.claude/settings.local.json` → `enabledPlugins` object.
+- **Global MCPs**: `~/.claude.json` → top-level `mcpServers` object. Keys are server names.
+- **Project MCPs**: `$PROJECT_ROOT/.mcp.json` → `mcpServers` object. Keys are server names.
+- **Current MCP disabled state**: `~/.claude.json` → `projects["$PROJECT_ROOT"]` → `disabledMcpServers` array.
+
+Merge global and project MCP names into one list of all known MCP servers.
 
 ## Step 3: Print read-only section (globally-ON plugins)
 
@@ -49,6 +50,25 @@ already active and cannot be toggled here — show them as read-only:
 
 ## Step 4: Present the interactive checklist
 
+### MCP questions
+
+From the merged MCP server list and `disabledMcpServers`:
+
+**Enabled MCPs**: all known MCP server names NOT in `disabledMcpServers`.
+**Disabled MCPs**: all known MCP server names that ARE in `disabledMcpServers`.
+
+**Question A** — only if there are enabled MCPs:
+"Which MCP servers do you want to DISABLE for this project?"
+Options: one per enabled MCP, labeled `[MCP] server-name`.
+Always include "None — keep all enabled" as the last option.
+
+**Question B** — only if there are disabled MCPs:
+"Which MCP servers do you want to RE-ENABLE for this project?"
+Options: one per disabled MCP, labeled `[MCP] server-name`.
+Always include "None — keep all disabled" as the last option.
+
+### Plugin questions
+
 From `~/.claude/settings.json` `enabledPlugins` and `$PROJECT_ROOT/.claude/settings.local.json`
 `enabledPlugins`, derive two lists:
 
@@ -57,8 +77,6 @@ From `~/.claude/settings.json` `enabledPlugins` and `$PROJECT_ROOT/.claude/setti
 
 **Locally-OFF plugins**: globally-OFF plugins that do NOT have `enabledPlugins[key]: true`
 in `settings.local.json`. These are inactive for this project.
-
-Ask two separate AskUserQuestion calls with `multiSelect: true`:
 
 **Question 1** — only if there are locally-ON plugins:
 "Which of these locally-enabled plugins do you want to disable for this project?"
@@ -72,13 +90,42 @@ Always include "None — keep all disabled" as the last option.
 
 Skip a question entirely if its list is empty.
 
-If there are no toggleable plugin items at all, print:
+If there are no toggleable items at all (no MCPs, no toggleable plugins), print:
 ```
-No toggleable plugins for this project.
+No toggleable plugins or MCP servers for this project.
 ```
 And stop.
 
-## Step 5: Write plugin state → `$PROJECT_ROOT/.claude/settings.local.json`
+## Step 5a: Write MCP disabled state → `~/.claude.json`
+
+Compute the new `disabledMcpServers` array:
+- Start from current `disabledMcpServers` (or `[]` if absent)
+- Add names selected in Question A (to disable)
+- Remove names selected in Question B (to re-enable)
+- If user selected "None" in a question, make no changes for that group
+
+If the array changed, write it back using Python3. Construct and run this command with the
+actual list substituted as a JSON array literal (e.g. `["memory", "sequential-thinking"]`):
+
+```bash
+python3 -c "
+import json
+project_root = 'ACTUAL_PROJECT_ROOT'
+disabled = ACTUAL_DISABLED_LIST
+claude_path = '$HOME/.claude.json'
+with open(claude_path) as f:
+    d = json.load(f)
+d.setdefault('projects', {}).setdefault(project_root, {})['disabledMcpServers'] = disabled
+with open(claude_path, 'w') as f:
+    json.dump(d, f, indent=2)
+"
+```
+
+Replace `ACTUAL_PROJECT_ROOT` with the real path string and `ACTUAL_DISABLED_LIST` with the
+real Python list literal before running. Do not use shell variable expansion inside the
+python3 -c string.
+
+## Step 5b: Write plugin state → `$PROJECT_ROOT/.claude/settings.local.json`
 
 Read existing file (or start with `{}`). Only modify `enabledPlugins`:
 - Plugins selected in Question 1 (to disable): remove their key from `enabledPlugins`
@@ -90,12 +137,16 @@ Create `$PROJECT_ROOT/.claude/` if it does not exist.
 
 ## Step 6: Confirm
 
-If changes were made:
+If any changes were made:
 ```
 ✓ Saved plugin state to .claude/settings.local.json
+✓ Saved MCP state to ~/.claude.json
 
-Run /reload-plugins to apply changes.
+Plugin changes: run /reload-plugins to apply.
+MCP changes: restart Claude Code to take effect.
 ```
+
+Omit lines that do not apply (e.g. omit the MCP line if no MCP changes were made).
 
 If nothing changed:
 ```
