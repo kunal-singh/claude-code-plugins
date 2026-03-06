@@ -34,16 +34,14 @@ Read the following. Treat missing files as empty.
 
 ## Step 3: Print read-only section
 
-Print a static block showing global items (not interactive). Show `[ON]` or `[OFF]` based
-on their value in global settings:
+Print a static block showing global MCPs only (not interactive). Plugins appear in the
+interactive checklist below, not here:
 
 ```
-─── Global (read-only) ──────────────────────────────
-  [ON]  <global-mcp-name>                        (global MCP)
-  ...
-  [ON]  <plugin@marketplace>                     (global plugin)
-  [OFF] <plugin@marketplace>                     (global plugin, disabled globally)
-  ...
+─── Global MCPs (read-only) ─────────────────────────
+  [ON] context7           (global MCP)
+  [ON] sequential-thinking (global MCP)
+  [ON] memory             (global MCP)
 ─────────────────────────────────────────────────────
 ```
 
@@ -51,18 +49,22 @@ on their value in global settings:
 
 Build toggleable items:
 - Project MCPs from `.mcp.json` → label as `[MCP] server-name`
-- Globally-enabled plugins (value `true` in global settings.json) → label as `[PLUGIN] plugin-name@marketplace`
+- ALL plugins from `enabledPlugins` in `~/.claude/settings.json` → label as `[PLUGIN] plugin-name@marketplace`
 
-Do NOT include globally-disabled plugins — they cannot be toggled at project level.
+Include all plugins regardless of their global on/off state — the user can enable or disable
+any plugin locally for this project session.
 
-For each item, determine current state:
-- Project MCPs: ON unless in `disabledMcpjsonServers` in settings.local.json
-- Plugins: ON unless `enabledPlugins[key]` is `false` in settings.local.json
+Determine current ON/OFF state for each item:
+- Project MCPs: ON unless the server name is in `disabledMcpjsonServers` in settings.local.json
+- Plugins:
+  - If `enabledPlugins[key]` is `false` in settings.local.json → currently OFF locally
+  - Else if `enabledPlugins[key]` is `true` in settings.local.json → currently ON locally
+  - Else (no local override) → inherit global state from `~/.claude/settings.json`
 
-Use **AskUserQuestion with multiSelect: true**. Present all toggleable items as options,
-pre-selecting currently-ON items. User's selection = ENABLED. Unselected = DISABLED (paused).
+Use **AskUserQuestion with multiSelect: true**. Present ALL plugins and project MCPs as options.
+Pre-select items that are currently ON. User's selection = ENABLED. Unselected = DISABLED (paused).
 
-If there are no toggleable items, print:
+If there are no toggleable items (no plugins and no project MCPs), print:
 ```
 No toggleable items for this project.
 ```
@@ -74,7 +76,7 @@ File: `$PROJECT_ROOT/.claude/settings.local.json`
 
 Read existing file (or start with `{}`). Only modify these two keys:
 - `disabledMcpjsonServers`: array of project MCP server names the user did NOT select
-- `enabledPlugins`: object with `false` for deselected plugins; remove key for selected plugins
+- `enabledPlugins`: object — for each plugin the user selected set `true`; for each plugin the user did NOT select set `false`
 
 All other keys must remain untouched. Write the merged result back.
 
