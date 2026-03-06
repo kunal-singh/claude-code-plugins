@@ -1,6 +1,6 @@
 ---
 name: context-manager
-description: Interactively toggle MCP servers and plugins for the current project session to manage context window usage
+description: Interactively toggle plugins for the current project session to manage context window usage
 allowed-tools:
   - Bash
   - Read
@@ -8,8 +8,12 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-Help the user manage their active MCP servers and plugins for the current project session.
+Help the user manage their active plugins for the current project session.
 Follow the steps below exactly.
+
+Note: MCP toggling is not supported. Disabled MCPs still inject tool definitions into the
+context window (Claude Code bug #11370), so toggling them does not save context tokens.
+Use Claude Code's built-in MCP Tool Search (lazy loading) instead.
 
 ## Step 1: Detect project root
 
@@ -23,14 +27,11 @@ Once determined, confirm with the user via AskUserQuestion:
 
 If they say no, ask them to provide the correct path. Store as PROJECT_ROOT.
 
-## Step 2: Read all configuration sources
+## Step 2: Read configuration sources
 
 Read the following. Treat missing files as empty.
 
 - **Global plugins**: `~/.claude/settings.json` → `enabledPlugins` object. Keys are `plugin@marketplace`, values `true`/`false`.
-- **Global MCPs**: `~/.claude.json` → top-level `mcpServers` object. Keys are server names.
-- **Project MCPs**: `$PROJECT_ROOT/.mcp.json` → `mcpServers` object. Keys are server names.
-- **Current MCP state**: `~/.claude.json` → `projects["$PROJECT_ROOT"]` → `disabledMcpjsonServers` array. This is the authoritative source for per-project MCP disable state.
 - **Current plugin state**: `$PROJECT_ROOT/.claude/settings.local.json` → `enabledPlugins` object.
 
 ## Step 3: Print read-only section (globally-ON plugins)
@@ -47,20 +48,6 @@ already active and cannot be toggled here — show them as read-only:
 (List only plugins where global value is `true`.)
 
 ## Step 4: Present the interactive checklist
-
-Two sets of toggleable items:
-
-### MCPs (global + project)
-All MCP servers are toggleable. The user can disable any MCP for this project session.
-
-Determine current ON/OFF state from `~/.claude.json` → `projects["$PROJECT_ROOT"]` →
-`disabledMcpjsonServers` array:
-- MCP is OFF if its name is in `disabledMcpjsonServers`
-- MCP is ON otherwise
-
-Label as `[MCP] server-name`.
-
-### Plugins — two separate questions
 
 From `~/.claude/settings.json` `enabledPlugins` and `$PROJECT_ROOT/.claude/settings.local.json`
 `enabledPlugins`, derive two lists:
@@ -85,26 +72,13 @@ Always include "None — keep all disabled" as the last option.
 
 Skip a question entirely if its list is empty.
 
-If there are no toggleable plugin items at all, skip both questions.
-
-If there are no toggleable items at all (no MCPs either), print:
+If there are no toggleable plugin items at all, print:
 ```
-No toggleable items for this project.
+No toggleable plugins for this project.
 ```
 And stop.
 
-## Step 5: Compute diff and write state
-
-Two separate writes:
-
-### 5a: Write MCP state → `~/.claude.json`
-
-Read `~/.claude.json`. Find or create `projects["$PROJECT_ROOT"]` object.
-Set `disabledMcpjsonServers` to the array of MCP server names the user did NOT select.
-All other keys in `~/.claude.json` and in the project entry must remain untouched.
-Write the merged result back to `~/.claude.json`.
-
-### 5b: Write plugin state → `$PROJECT_ROOT/.claude/settings.local.json`
+## Step 5: Write plugin state → `$PROJECT_ROOT/.claude/settings.local.json`
 
 Read existing file (or start with `{}`). Only modify `enabledPlugins`:
 - Plugins selected in Question 1 (to disable): remove their key from `enabledPlugins`
@@ -118,7 +92,6 @@ Create `$PROJECT_ROOT/.claude/` if it does not exist.
 
 If changes were made:
 ```
-✓ Saved MCP state to ~/.claude.json
 ✓ Saved plugin state to .claude/settings.local.json
 
 Run /reload-plugins to apply changes.
