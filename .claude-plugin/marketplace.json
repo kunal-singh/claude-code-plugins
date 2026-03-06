@@ -30,6 +30,18 @@
       "source": "./pluginify",
       "category": "development",
       "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/pluginify"
+    },
+    {
+      "name": "context-manager",
+      "description": "Interactively toggle MCP servers and plugins per project session to manage context window usage. Writes state to .claude/settings.local.json without modifying source config.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Kunal Singh",
+        "email": "hi@thekunalsingh.com"
+      },
+      "source": "./context-manager",
+      "category": "development",
+      "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/context-manager"
     }
   ]
 }
