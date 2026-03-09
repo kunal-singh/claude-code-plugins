@@ -66,6 +66,18 @@
       "source": "./product-manager",
       "category": "development",
       "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/product-manager"
+    },
+    {
+      "name": "architect",
+      "description": "Architect agent — designs HLD/LLD from PRD + codebase, produces junior-ready implementation plans, answers developer FAQs, and reviews implementations.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kunal Singh",
+        "email": "hi@thekunalsingh.com"
+      },
+      "source": "./architect",
+      "category": "development",
+      "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/architect"
     }
   ]
 }
