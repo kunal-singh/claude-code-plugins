@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Team session scaffolding — creates structured PRD/architecture/review files in .claude/team-sessions/ with a searchable JSON index.",
   "author": { "name": "Kunal Singh", "email": "hi@thekunalsingh.com" },
   "commands": [

@@ -91,12 +91,17 @@ function main() {
     fs.writeFileSync(path.join(sessionDir, filename), content, 'utf8');
   }
 
+  for (const s of index.sessions) {
+    s.isActive = false;
+  }
+
   index.sessions.push({
     name: displayName,
     slug,
     path: path.relative(projectRoot, sessionDir),
     createdAt: now,
     updatedAt: now,
+    isActive: true,
   });
 
   writeIndex(indexPath, index);
