@@ -13,7 +13,7 @@
 
 ### Component Diagram
 
-<!-- ASCII or Mermaid diagram. -->
+<!-- ASCII diagram. -->
 
 ### Data Flow
 

@@ -54,6 +54,18 @@
       "source": "./workflow",
       "category": "development",
       "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/workflow"
+    },
+    {
+      "name": "product-manager",
+      "description": "Product manager agent — interviews users to populate session PRDs and answers inter-agent review questions.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kunal Singh",
+        "email": "hi@thekunalsingh.com"
+      },
+      "source": "./product-manager",
+      "category": "development",
+      "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/product-manager"
     }
   ]
 }
