@@ -42,6 +42,18 @@
       "source": "./context-manager",
       "category": "development",
       "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/context-manager"
+    },
+    {
+      "name": "workflow",
+      "description": "Team session scaffolding — creates structured PRD, architecture, and review checklist files in .claude/team-sessions/ with a searchable JSON index. Sessions are listed by date and searchable by name, with AI summarisation on demand.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kunal Singh",
+        "email": "hi@thekunalsingh.com"
+      },
+      "source": "./workflow",
+      "category": "development",
+      "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/workflow"
     }
   ]
 }
