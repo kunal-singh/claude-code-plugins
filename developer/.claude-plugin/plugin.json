@@ -1,0 +1,8 @@
+{
+  "name": "developer",
+  "version": "1.0.0",
+  "description": "Developer agent — implements architecture plans task by task, follows CLAUDE.md constraints, escalates blockers to the architect via FAQs.",
+  "author": { "name": "Kunal Singh", "email": "hi@thekunalsingh.com" },
+  "agents": ["./agents/developer.md"],
+  "skills": ["./skills/implement-plan"]
+}
