@@ -1,6 +1,6 @@
 {
   "name": "architect",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Architect agent — designs HLD/LLD from PRD + codebase, produces junior-ready implementation plans, answers developer FAQs, and reviews implementations.",
   "author": { "name": "Kunal Singh", "email": "hi@thekunalsingh.com" },
   "agents": ["./agents/architect.md"],
@@ -8,5 +8,6 @@
     "./skills/architecture-interview",
     "./skills/architecture-faq-responder",
     "./skills/code-review"
-  ]
+  ],
+  "dependencies": ["ask-questions-if-underspecified"]
 }

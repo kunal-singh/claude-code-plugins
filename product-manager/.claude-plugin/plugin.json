@@ -1,6 +1,8 @@
 {
   "name": "product-manager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Product manager agent — interviews users to populate session PRDs and answers inter-agent review questions.",
-  "author": { "name": "Kunal Singh", "email": "hi@thekunalsingh.com" }
+  "author": { "name": "Kunal Singh", "email": "hi@thekunalsingh.com" },
+  "agents": ["./agents/product-manager.md"],
+  "dependencies": ["ask-questions-if-underspecified"]
 }

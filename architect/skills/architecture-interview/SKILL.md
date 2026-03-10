@@ -17,10 +17,10 @@ You are conducting a structured architecture interview. The agent has already re
 
 ## Phase 2: Surface all ambiguities before writing
 
-After gathering context, identify every requirement that is unclear, conflicting, or missing. Present them as a **numbered list** and wait for the user to resolve **all of them** before proceeding. Do not produce any architecture or plan with unresolved items.
+After gathering context, identify every requirement that is unclear, conflicting, or missing. Invoke the `ask-questions-if-underspecified` skill, passing the list of ambiguities you've identified as the underspecified items. Do not proceed until the skill returns resolved answers.
 
-- If `prd.md` is absent, rely on the user's conversational context. If not enough context exists, ask targeted questions until fully clear.
-- If `prd.md` exists but has gaps that block decisions, ask the user. On confirmation, append the resolved answer to `prd.md`'s FAQs section as:
+Once all ambiguities are resolved:
+- If `prd.md` exists and the user confirmed answers should be appended, add them to `prd.md`'s FAQs section as:
   ```
   **Q:** <question>
   **A:** <answer>

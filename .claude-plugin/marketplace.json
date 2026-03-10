@@ -58,7 +58,7 @@
     {
       "name": "product-manager",
       "description": "Product manager agent — interviews users to populate session PRDs and answers inter-agent review questions.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Kunal Singh",
         "email": "hi@thekunalsingh.com"
@@ -70,7 +70,7 @@
     {
       "name": "architect",
       "description": "Architect agent — designs HLD/LLD from PRD + codebase, produces junior-ready implementation plans, answers developer FAQs, and reviews implementations.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Kunal Singh",
         "email": "hi@thekunalsingh.com"
@@ -81,7 +81,7 @@
     },
     {
       "name": "developer",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Developer agent — implements architecture plans task by task, follows CLAUDE.md constraints, escalates blockers to the architect via FAQs.",
       "author": {
         "name": "Kunal Singh",

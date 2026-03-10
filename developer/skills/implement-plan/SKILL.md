@@ -37,10 +37,9 @@ For each selected task, in dependency order:
 
 1. Re-read the task spec from `architecture.md`: target files, functions/types to add or modify, acceptance criterion.
 2. Read each target file before editing — never assume its structure.
-3. **If anything is unclear or underspecified:**
-   a. Ask the user first — one focused question per blocker.
-   b. Use `mcp__exa__web_search_exa` or `mcp__context7__get-library-docs` only when the question is about library syntax, API shape, or framework conventions — not about intent or design decisions.
-   c. If the user says to escalate to the architect, append to `ARCH_PATH` under the FAQs section:
+3. **If anything about the task spec is unclear or underspecified:**
+   - Invoke the `ask-questions-if-underspecified` skill. Do not proceed until it resolves the ambiguity.
+   - If the resolved answer reveals a design gap that only the architect can answer, append to `ARCH_PATH` under the FAQs section:
       ```
       **Q:** <specific question>
       **A:**

@@ -31,7 +31,8 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/get-active-prd.js
 
 After resolving `PRD_PATH`, read the file and decide what to do:
 
-1. **PRD sections mostly empty** (Problem Statement, Goals, Non-Goals, User Stories, Functional Requirements, Non-Functional Requirements are blank or contain only the HTML comment placeholders) → invoke the `prd-interview` skill.
-2. **FAQs section has unanswered questions** (lines matching `**Q:**` not immediately followed by a `**A:**` line) → invoke the `prd-faq-responder` skill.
-3. **Both apply** → run `prd-interview` first, then `prd-faq-responder`.
-4. **Neither applies** → summarise the current PRD state to the user and ask what they'd like to do next.
+1. **User prompt is open-ended or ambiguous** (e.g. "help me with my product", no clear intent, multiple plausible next steps) → invoke the `ask-questions-if-underspecified` skill first. Once scope is clarified, restart dispatch from case 1.
+2. **PRD sections mostly empty** (Problem Statement, Goals, Non-Goals, User Stories, Functional Requirements, Non-Functional Requirements are blank or contain only the HTML comment placeholders) → invoke the `prd-interview` skill.
+3. **FAQs section has unanswered questions** (lines matching `**Q:**` not immediately followed by a `**A:**` line) → invoke the `prd-faq-responder` skill.
+4. **Both apply** → run `prd-interview` first, then `prd-faq-responder`.
+5. **Neither applies** → summarise the current PRD state to the user and ask what they'd like to do next.

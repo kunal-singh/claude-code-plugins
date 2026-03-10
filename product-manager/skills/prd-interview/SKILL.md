@@ -8,6 +8,10 @@ user-invocable: false
 
 You are conducting a structured PRD interview. The agent has already resolved `PRD_PATH` — use it for all reads and writes.
 
+## Pre-flight
+
+If the user's initial prompt is ambiguous about which product, feature scope, or audience the PRD covers, invoke the `ask-questions-if-underspecified` skill first. Once scope is clear, proceed with the structured interview.
+
 ## Process
 
 1. Read `PRD_PATH` to identify which sections are empty (contain only the HTML comment placeholder or are truly blank).

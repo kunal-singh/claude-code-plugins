@@ -39,8 +39,9 @@ If the script exits with an error, surface the error message to the user and sto
 
 After resolving paths, read `ARCH_PATH` and check for an `## Implementation Plan` section:
 
-- **Section found** → invoke the `implement-plan` skill.
 - **Section absent** → inform the user: "No Implementation Plan found in `architecture.md`. Ask the architect agent to produce one before invoking the developer."
+- **Section found, but user prompt does not specify which task(s) and the plan has multiple tasks** → invoke the `ask-questions-if-underspecified` skill to narrow scope. Once the user selects task(s), invoke `implement-plan`.
+- **Section found and scope is clear** → invoke the `implement-plan` skill.
 
 ## Scope
 

@@ -39,7 +39,8 @@ After resolving paths, read `ARCH_PATH` (and `PRD_PATH` if non-null) and decide 
 1. **`architecture.md` sections mostly empty** (System Overview, Component Diagram, Data Flow, Technology Decisions, LLD, Infrastructure, Security Considerations contain only HTML comment placeholders or are blank) → invoke the `architecture-interview` skill.
 2. **FAQs section has unanswered questions** (lines matching `**Q:**` not immediately followed by a `**A:**` line) → invoke the `architecture-faq-responder` skill.
 3. **Both apply** → run `architecture-interview` first, then `architecture-faq-responder`.
-4. **Neither applies** → summarise the current architecture state to the user and ask what they'd like to do next.
+4. **Neither applies and user prompt is ambiguous** (e.g. no clear architectural question, multiple plausible next steps) → invoke `ask-questions-if-underspecified` to clarify intent before proceeding.
+5. **Neither applies** → summarise the current architecture state to the user and ask what they'd like to do next.
 
 ## Scope
 
