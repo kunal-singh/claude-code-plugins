@@ -8,6 +8,5 @@
     "./skills/architecture-interview",
     "./skills/architecture-faq-responder",
     "./skills/code-review"
-  ],
-  "dependencies": ["ask-questions-if-underspecified"]
+  ]
 }
