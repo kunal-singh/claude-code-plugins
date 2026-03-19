@@ -1,56 +1,45 @@
 ---
 name: capture
-description: Capture the output of a tmux pane and write it to ~/tmux-logs/ for reading in this Claude session. Usage: /tmux-capture:capture <pane-number> [lines]
+description: Capture the output of a tmux pane and read it inline. Usage: /tmux-capture:capture <pane-number> [lines]
 argument-hint: "<pane-number> [lines]"
 allowed-tools:
   - Bash
-  - Read
 ---
 
-Capture the output of tmux pane `$ARGUMENTS` and write it to `~/tmux-logs/`.
+Capture the output of tmux pane `$ARGUMENTS` and read it inline.
 
 ## Argument Parsing
 
 Parse `$ARGUMENTS` as:
-- First token: pane number (1-indexed, required)
-- Second token: line count (optional, integer — how many lines from scrollback to capture)
+- First token: pane number (required)
+- Second token: line count (optional — how many lines from scrollback to capture)
 
 If no arguments provided, ask the user: "Which pane number do you want to capture?"
 
 ## Execution
 
-Run the following bash, substituting parsed values:
+**Guard**: If `$TMUX` is unset, inform the user this plugin requires a tmux session and stop.
+
+Run one bash call:
 
 ```bash
 PANE_NUM=<pane-number>
-WINDOW_NAME=$(tmux display-message -p '#W' | tr ' ' '_')
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p ~/tmux-logs
-OUTFILE=~/tmux-logs/${TIMESTAMP}_pane${PANE_NUM}_${WINDOW_NAME}.txt
 
-# Full scrollback (default) or limited if line count provided
 if [ -n "<lines>" ]; then
-  tmux capture-pane -t $PANE_NUM -p -S -<lines> > "$OUTFILE"
+  tmux capture-pane -t $PANE_NUM -p -S -<lines>
 else
-  tmux capture-pane -t $PANE_NUM -p -S - > "$OUTFILE"
+  tmux capture-pane -t $PANE_NUM -p -S -
 fi
-
-LINE_COUNT=$(wc -l < "$OUTFILE")
-echo "FILE=$OUTFILE"
-echo "LINES=$LINE_COUNT"
 ```
+
+Read the stdout directly. Do not write any files.
 
 ## After Capture
 
-Report to the user:
-- The full path of the written file
-- The line count
-- Example: "Captured pane 2 → `~/tmux-logs/20240315_143022_pane2_server.txt` (342 lines)"
-
-Do NOT automatically read or summarize the file. Let the user ask if they want the contents analyzed.
+Report the captured output inline. If the output is large, summarize and highlight key content (errors, warnings, recent activity).
 
 ## Error Cases
 
-- If `tmux capture-pane` exits non-zero: report pane N does not exist, then run `tmux list-panes -F 'Pane #{e|+|:#{pane_index},1}: #{pane_current_command}'` and show available panes.
-- If `$TMUX` is unset (not inside tmux): inform the user and stop.
-- If output file is 0 bytes: warn that the pane has no scrollback content.
+- If `tmux capture-pane` exits non-zero: report pane N does not exist, then run `tmux list-panes -F 'Pane #{pane_index}: #{pane_current_command}'` and show available panes.
+- If `$TMUX` is unset: inform the user and stop.
+- If output is empty: warn that the pane has no scrollback content.

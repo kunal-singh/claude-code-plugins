@@ -1,7 +1,7 @@
 {
   "name": "tmux-capture",
-  "version": "1.0.1",
-  "description": "Capture tmux pane output to ~/tmux-logs/ so a Claude Code session can read output from another pane (e.g. a dedicated app/server pane).",
+  "version": "1.1.0",
+  "description": "Capture tmux pane output inline so a Claude Code session can read output from another pane (e.g. a dedicated app/server pane).",
   "author": {
     "name": "Kunal Singh",
     "email": "hi@thekunalsingh.com"

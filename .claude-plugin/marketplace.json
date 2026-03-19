@@ -9,8 +9,8 @@
   "plugins": [
     {
       "name": "tmux-capture",
-      "description": "Capture tmux pane output to ~/tmux-logs/ so a Claude Code session can read and analyze output from another pane. Useful for debugging when one pane runs an app and another runs Claude.",
-      "version": "1.0.1",
+      "description": "Capture tmux pane output inline so a Claude Code session can read and analyze output from another pane. Useful for debugging when one pane runs an app and another runs Claude.",
+      "version": "1.1.0",
       "author": {
         "name": "Kunal Singh",
         "email": "hi@thekunalsingh.com"
