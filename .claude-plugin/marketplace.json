@@ -34,7 +34,7 @@
     {
       "name": "context-manager",
       "description": "Interactively toggle plugins and MCP servers per project session to manage context window usage. Writes plugin state to .claude/settings.local.json and MCP state to ~/.claude.json without modifying source config.",
-      "version": "0.9.0",
+      "version": "1.0.0",
       "author": {
         "name": "Kunal Singh",
         "email": "hi@thekunalsingh.com"

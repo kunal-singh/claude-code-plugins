@@ -1,6 +1,6 @@
 {
   "name": "context-manager",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "Interactively toggle plugins and MCP servers per project session to manage context window usage",
   "author": {
     "name": "Kunal Singh",

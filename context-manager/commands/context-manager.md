@@ -3,7 +3,6 @@ name: context-manager
 description: Interactively toggle plugins and MCP servers for the current project session to manage context window usage
 allowed-tools:
   - Bash
-  - Read
   - Write
   - AskUserQuestion
 ---
@@ -11,29 +10,36 @@ allowed-tools:
 Help the user manage their active plugins and MCP servers for the current project session.
 Follow the steps below exactly.
 
-## Step 1: Detect project root
+## Steps 1 & 2: Detect project root and read configuration
 
-Run these checks in order, stopping at the first success:
-1. `echo $CLAUDE_PROJECT_ROOT` — if set and non-empty, use it
-2. `git rev-parse --show-toplevel` — if inside a git repo, use that path
-3. If both fail, use AskUserQuestion to ask: "Could not detect project root automatically. Please provide the absolute path to your project root."
+Run this bash block and read its stdout to derive all state:
 
-Once determined, confirm with the user via AskUserQuestion:
-"Project root detected: /path/to/project — is this correct?"
+```bash
+PROJECT_ROOT=$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
 
-If they say no, ask them to provide the correct path. Store as PROJECT_ROOT.
+GLOBAL_PLUGINS=$(jq -c '.enabledPlugins // {}' ~/.claude/settings.json 2>/dev/null || echo '{}')
+LOCAL_PLUGINS=$(jq -c '.enabledPlugins // {}' "$PROJECT_ROOT/.claude/settings.local.json" 2>/dev/null || echo '{}')
+GLOBAL_MCPS=$(jq -r '.mcpServers // {} | keys | join(",")' ~/.claude.json 2>/dev/null || echo '')
+PROJECT_MCPS=$(jq -r '.mcpServers // {} | keys | join(",")' "$PROJECT_ROOT/.mcp.json" 2>/dev/null || echo '')
+DISABLED_MCPS=$(jq -r --arg p "$PROJECT_ROOT" '.projects[$p].disabledMcpServers // [] | join(",")' ~/.claude.json 2>/dev/null || echo '')
 
-## Step 2: Read configuration sources
+echo "PROJECT_ROOT=$PROJECT_ROOT"
+echo "GLOBAL_PLUGINS=$GLOBAL_PLUGINS"
+echo "LOCAL_PLUGINS=$LOCAL_PLUGINS"
+echo "GLOBAL_MCPS=$GLOBAL_MCPS"
+echo "PROJECT_MCPS=$PROJECT_MCPS"
+echo "DISABLED_MCPS=$DISABLED_MCPS"
+```
 
-Read the following. Treat missing files as empty.
+Parse the output:
+- `PROJECT_ROOT`: the detected project root path
+- `GLOBAL_PLUGINS`: JSON object of global `enabledPlugins`
+- `LOCAL_PLUGINS`: JSON object of local `enabledPlugins`
+- `GLOBAL_MCPS`: comma-separated list of global MCP server names (may be empty)
+- `PROJECT_MCPS`: comma-separated list of project MCP server names (may be empty)
+- `DISABLED_MCPS`: comma-separated list of currently-disabled MCP server names (may be empty)
 
-- **Global plugins**: `~/.claude/settings.json` → `enabledPlugins` object. Keys are `plugin@marketplace`, values `true`/`false`.
-- **Current plugin state**: `$PROJECT_ROOT/.claude/settings.local.json` → `enabledPlugins` object.
-- **Global MCPs**: `~/.claude.json` → top-level `mcpServers` object. Keys are server names.
-- **Project MCPs**: `$PROJECT_ROOT/.mcp.json` → `mcpServers` object. Keys are server names.
-- **Current MCP disabled state**: `~/.claude.json` → `projects["$PROJECT_ROOT"]` → `disabledMcpServers` array.
-
-Merge global and project MCP names into one list of all known MCP servers.
+Merge `GLOBAL_MCPS` and `PROJECT_MCPS` into one deduplicated list of all known MCP servers.
 
 ## Step 3: Print read-only section (globally-ON plugins)
 
