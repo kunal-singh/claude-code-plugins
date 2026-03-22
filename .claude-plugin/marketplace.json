@@ -90,6 +90,18 @@
       "source": "./developer",
       "category": "development",
       "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/developer"
+    },
+    {
+      "name": "style-guide",
+      "description": "Integrates @kunal-singh style-guide configs (ESLint, Prettier, TypeScript, commitlint) with Husky + lint-staged into any project.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Kunal Singh",
+        "email": "hi@thekunalsingh.com"
+      },
+      "source": "./style-guide",
+      "category": "development",
+      "homepage": "https://github.com/kunal-singh/claude-code-plugins/tree/main/style-guide"
     }
   ]
 }
