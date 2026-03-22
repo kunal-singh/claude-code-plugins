@@ -50,8 +50,15 @@ node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); 
   const d={...p.dependencies,...p.devDependencies}; \
   if(d['next']) console.log('nextjs'); \
   else if(d['react']) console.log('react'); \
+  else if(d['express']||d['fastify']||d['hono']||d['koa']) console.log('server'); \
   else console.log('base');" 2>/dev/null || echo "base"
 ```
+
+Preset → ESLint import mapping:
+- `react` → `@kunal-singh/eslint-config/react`
+- `nextjs` → `@kunal-singh/eslint-config/nextjs`
+- `server` or `library` → `@kunal-singh/eslint-config/server`
+- `base` → `@kunal-singh/eslint-config` (default export)
 
 Use the detected value for both ESLint and TypeScript preset selection below.
 
@@ -93,9 +100,14 @@ pnpm add -D -w \
   @kunal-singh/commitlint-config @commitlint/cli @commitlint/config-conventional \
   lefthook lint-staged
 
-# 5. Config files
+# 5. Config files — use the detected/specified preset for the ESLint import
+# Replace <PRESET_IMPORT> with the correct value from the mapping in Step 2:
+#   base    → @kunal-singh/eslint-config
+#   server/library → @kunal-singh/eslint-config/server
+#   react   → @kunal-singh/eslint-config/react
+#   nextjs  → @kunal-singh/eslint-config/nextjs
 cat > eslint.config.js << 'EOF'
-import config from "@kunal-singh/eslint-config";
+import config from "<PRESET_IMPORT>";
 export default config;
 EOF
 
@@ -173,22 +185,28 @@ pnpm add -D \
   lefthook lint-staged
 ```
 
-For the ESLint config, use the detected preset (react/nextjs/base):
+For the ESLint config, use the detected preset per the mapping in Step 2:
 
 ```bash
-# For react preset:
+# react:
 cat > eslint.config.js << 'EOF'
 import config from "@kunal-singh/eslint-config/react";
 export default config;
 EOF
 
-# For nextjs preset:
+# nextjs:
 cat > eslint.config.js << 'EOF'
 import config from "@kunal-singh/eslint-config/nextjs";
 export default config;
 EOF
 
-# For base preset:
+# server or library:
+cat > eslint.config.js << 'EOF'
+import config from "@kunal-singh/eslint-config/server";
+export default config;
+EOF
+
+# base (fallback):
 cat > eslint.config.js << 'EOF'
 import config from "@kunal-singh/eslint-config";
 export default config;
