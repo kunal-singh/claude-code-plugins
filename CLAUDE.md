@@ -41,3 +41,4 @@ Before committing:
 - Skills must not invoke each other unless documented in a parent agent
 - All agent/skill prose should reference the `ask-questions-if-underspecified` skill when clarification is needed
 - Do not add fields to `plugin.json` that aren't in the official schema (e.g., no `dependencies` field)
+- While writing skills, always prefer running deterministic bash commands over manually writing files with the Write tool.
