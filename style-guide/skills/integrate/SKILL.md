@@ -51,7 +51,7 @@ node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); 
   if(d['next']) console.log('nextjs'); \
   else if(d['react']) console.log('react'); \
   else if(d['express']||d['fastify']||d['hono']||d['koa']) console.log('server'); \
-  else console.log('base');" 2>/dev/null || echo "base"
+  else console.log('library');" 2>/dev/null || echo "library"
 ```
 
 Preset → ESLint import mapping:
@@ -62,9 +62,9 @@ Preset → ESLint import mapping:
 
 Use the detected value for both ESLint and TypeScript preset selection below.
 
-## Step 3A: Monorepo — Fresh pnpm Workspaces Scaffold
+## Step 3A: Monorepo — Fresh pnpm Workspaces Scaffold (Library)
 
-Run these commands in the project root:
+This produces a library monorepo using Turbo + tsup. Run these commands in the project root:
 
 ```bash
 # 1. Create workspace directories
@@ -77,7 +77,7 @@ packages:
   - 'packages/*'
 EOF
 
-# 3. Root package.json (private monorepo root)
+# 3. Root package.json (private monorepo root, turbo-powered)
 REPO_NAME=$(basename "$PWD")
 cat > package.json << EOF
 {
@@ -86,30 +86,62 @@ cat > package.json << EOF
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "lint": "eslint .",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
     "format": "prettier --write ."
   }
 }
 EOF
 
-# 4. Install all style-guide deps at workspace root
+# 4. Install all style-guide + build tool deps at workspace root
 pnpm add -D -w \
   @kunal-singh/eslint-config eslint \
   @kunal-singh/prettier-config prettier \
   @kunal-singh/typescript-config typescript \
   @kunal-singh/commitlint-config @commitlint/cli @commitlint/config-conventional \
-  lefthook lint-staged
+  lefthook lint-staged \
+  turbo tsup
 
-# 5. Config files — use the detected/specified preset for the ESLint import
-# Replace <PRESET_IMPORT> with the correct value from the mapping in Step 2:
-#   base    → @kunal-singh/eslint-config
-#   server/library → @kunal-singh/eslint-config/server
-#   react   → @kunal-singh/eslint-config/react
-#   nextjs  → @kunal-singh/eslint-config/nextjs
-cat > eslint.config.js << 'EOF'
-import config from "<PRESET_IMPORT>";
-export default config;
+# 5. Turbo pipeline
+cat > turbo.json << 'EOF'
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsup.config.ts", "tsconfig.json"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "dependsOn": ["^build"],
+      "persistent": true,
+      "cache": false
+    },
+    "lint": {
+      "inputs": ["src/**", "eslint.config.js"],
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsconfig.json"],
+      "outputs": []
+    }
+  }
+}
 EOF
+
+# 6. Config files
+# eslint.config.js — use defineConfig + ignores + the detected preset import
+# For library/server preset:
+cat > eslint.config.js << 'EOF'
+import config from "@kunal-singh/eslint-config/server";
+import { defineConfig } from "eslint/config";
+
+export default defineConfig([{ ignores: ["dist", "*.config.js", ".lintstagedrc.js"] }, ...config]);
+EOF
+# Replace the import path above with the correct preset from the mapping in Step 2.
 
 cat > prettier.config.js << 'EOF'
 export { default } from "@kunal-singh/prettier-config";
@@ -120,24 +152,15 @@ import baseConfig from "@kunal-singh/commitlint-config";
 export default { ...baseConfig };
 EOF
 
+# Root tsconfig — library preset, no composite needed at root
 cat > tsconfig.json << 'EOF'
 {
-  "extends": "@kunal-singh/typescript-config/base",
-  "compilerOptions": {
-    "composite": true
-  },
+  "extends": "@kunal-singh/typescript-config/library",
   "exclude": ["node_modules"]
 }
 EOF
 
-cat > .lintstagedrc.js << 'EOF'
-export default {
-  "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
-  "*.{json,css,md}": ["prettier --write"],
-};
-EOF
-
-# 6. Git hooks (lefthook)
+# 7. Git hooks (lefthook) — lint-staged invoked via lefthook
 cat > lefthook.yml << 'EOF'
 pre-commit:
   commands:
@@ -150,6 +173,13 @@ commit-msg:
       run: pnpm exec commitlint --edit {1}
 EOF
 
+cat > .lintstagedrc.js << 'EOF'
+export default {
+  "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+  "*.{json,css,md}": ["prettier --write"],
+};
+EOF
+
 pnpm exec lefthook install
 ```
 
@@ -159,6 +189,7 @@ After running, show the user the created structure:
 ├── apps/
 ├── packages/
 ├── lefthook.yml          # pre-commit: lint-staged, commit-msg: commitlint
+├── turbo.json
 ├── eslint.config.js
 ├── prettier.config.js
 ├── commitlint.config.js
@@ -191,25 +222,29 @@ For the ESLint config, use the detected preset per the mapping in Step 2:
 # react:
 cat > eslint.config.js << 'EOF'
 import config from "@kunal-singh/eslint-config/react";
-export default config;
+import { defineConfig } from "eslint/config";
+export default defineConfig([{ ignores: ["dist", "*.config.js"] }, ...config]);
 EOF
 
 # nextjs:
 cat > eslint.config.js << 'EOF'
 import config from "@kunal-singh/eslint-config/nextjs";
-export default config;
+import { defineConfig } from "eslint/config";
+export default defineConfig([{ ignores: ["dist", ".next", "*.config.js"] }, ...config]);
 EOF
 
 # server or library:
 cat > eslint.config.js << 'EOF'
 import config from "@kunal-singh/eslint-config/server";
-export default config;
+import { defineConfig } from "eslint/config";
+export default defineConfig([{ ignores: ["dist", "*.config.js"] }, ...config]);
 EOF
 
 # base (fallback):
 cat > eslint.config.js << 'EOF'
 import config from "@kunal-singh/eslint-config";
-export default config;
+import { defineConfig } from "eslint/config";
+export default defineConfig([{ ignores: ["dist", "*.config.js"] }, ...config]);
 EOF
 ```
 
@@ -238,7 +273,7 @@ Then create prettier, commitlint configs and set up hooks identically to Step 3A
 
 Add scripts to `package.json` using the Edit tool (read it first, add `lint` and `format` to the scripts block — no `prepare` script needed with lefthook).
 
-## Step 3C: Add Package — New Package in Existing Monorepo
+## Step 3C: Add Package — New Publishable Library Package in Existing Monorepo
 
 Ask the user for:
 1. Package name (e.g. `ui`, `utils`, `api`)
@@ -247,25 +282,58 @@ Ask the user for:
 Then run:
 ```bash
 PKG_NAME="<name>"
-PKG_TYPE="<type>"  # react|library|server|base
 
 mkdir -p "packages/${PKG_NAME}/src"
 
-# Package package.json
+# Derive org scope from root package.json name
 SCOPE=$(node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); \
   const scope=p.name.startsWith('@') ? p.name.split('/')[0] : '@'+p.name; \
   console.log(scope);" 2>/dev/null || echo "@repo")
 
+# Package package.json — publishable, dual CJS+ESM via tsup
 cat > "packages/${PKG_NAME}/package.json" << EOF
 {
   "name": "${SCOPE}/${PKG_NAME}",
   "version": "0.0.1",
-  "private": true,
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
   }
 }
+EOF
+
+# tsup config — dual format, dts, sourcemap, treeshake
+cat > "packages/${PKG_NAME}/tsup.config.ts" << 'EOF'
+import { defineConfig } from "tsup";
+
+export default defineConfig({
+  entry: ["src/index.ts"],
+  format: ["cjs", "esm"],
+  dts: true,
+  sourcemap: true,
+  clean: true,
+  splitting: false,
+  treeshake: true,
+});
 EOF
 
 # Package tsconfig extends root
@@ -293,9 +361,6 @@ ESLint and Prettier are already configured at the monorepo root — flat config 
 After completing any use case, run:
 
 ```bash
-# Verify lint-staged config is valid
-pnpm exec lint-staged --list-different 2>/dev/null || echo "lint-staged config OK"
-
 # Verify commitlint
 echo "feat: test" | pnpm exec commitlint && echo "commitlint OK"
 
