@@ -17,7 +17,7 @@ Integrates `@kunal-singh` style-guide packages into a project. Supports three pr
 
 | npm package | peer deps |
 |---|---|
-| `@kunal-singh/eslint-config` | `eslint >=9` |
+| `@kunal-singh/eslint-config` | `eslint >=9`; for `/react` or `/nextjs` preset: also `eslint-plugin-react`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react-hooks@^6` |
 | `@kunal-singh/prettier-config` | `prettier >=3` |
 | `@kunal-singh/typescript-config` | `typescript` |
 | `@kunal-singh/commitlint-config` | `@commitlint/cli >=19`, `@commitlint/config-conventional >=19` |
@@ -206,8 +206,19 @@ Detect if git is already initialized:
 git rev-parse --git-dir 2>/dev/null && echo "git-exists" || git init
 ```
 
-Install deps (no `-w` flag since not a workspace):
+Install deps (no `-w` flag since not a workspace). Include preset-specific ESLint peer deps based on the preset detected in Step 2:
+
 ```bash
+# For react or nextjs preset:
+pnpm add -D \
+  @kunal-singh/eslint-config eslint \
+  eslint-plugin-react eslint-plugin-jsx-a11y eslint-plugin-react-hooks@^6 \
+  @kunal-singh/prettier-config prettier \
+  @kunal-singh/typescript-config typescript \
+  @kunal-singh/commitlint-config @commitlint/cli @commitlint/config-conventional \
+  lefthook lint-staged
+
+# For server, library, or base preset:
 pnpm add -D \
   @kunal-singh/eslint-config eslint \
   @kunal-singh/prettier-config prettier \
@@ -369,7 +380,6 @@ pnpm exec eslint --print-config eslint.config.js > /dev/null && echo "ESLint con
 ```
 
 Report results to the user. If any step fails, diagnose from the error message — common issues:
-- ESLint peer dep missing → run `pnpm add -D eslint-plugin-react` etc.
 - lefthook hooks not firing → run `pnpm exec lefthook install` again
 - commitlint config parse error → check that `type: "module"` is set in package.json
 

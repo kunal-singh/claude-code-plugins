@@ -94,7 +94,7 @@
     {
       "name": "style-guide",
       "description": "Integrates @kunal-singh style-guide configs (ESLint, Prettier, TypeScript, commitlint) with lefthook + lint-staged into any project.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "Kunal Singh",
         "email": "hi@thekunalsingh.com"
